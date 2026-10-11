@@ -1,0 +1,565 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MineTrack | Equipment Maintenance</title>
+<style>
+:root {
+  --navy:#101d30;
+  --orange:#f59e0b;
+  --bg:#f3f5f8;
+  --text:#243247;
+  --muted:#718096;
+}
+* { box-sizing:border-box }
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  color:var(--text);
+  background:var(--bg);
+}
+header {
+  background:var(--navy);
+  color:white;
+  padding:20px 5%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.brand {font-size:23px;font-weight:bold}
+.brand span {color:var(--orange)}
+header small {color:#cbd5e1}
+.layout {display:flex;min-height:calc(100vh - 68px)}
+aside {
+  width:215px;
+  background:var(--navy);
+  color:white;
+  padding:22px 14px;
+  flex-shrink:0;
+}
+aside h3 {color:var(--orange);padding-left:10px}
+nav button {
+  display:block;
+  width:100%;
+  text-align:left;
+  margin:6px 0;
+  color:#dbe4ef;
+  background:transparent;
+}
+nav button.active,nav button:hover {
+  background:var(--orange);
+  color:#172033;
+}
+main {flex:1;min-width:0;padding:28px}
+h1 {margin:0 0 8px;font-size:27px}
+p {color:var(--muted);line-height:1.5}
+.page {display:none}
+.page.active {display:block}
+.cards {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+  margin:24px 0;
+}
+.card,.panel {
+  background:white;
+  border-radius:11px;
+  padding:19px;
+  box-shadow:0 3px 15px #1720330a;
+}
+.card small {color:var(--muted)}
+.num {font-size:30px;font-weight:bold;margin:13px 0}
+.panel {margin-bottom:20px}
+.panel h2 {font-size:18px;margin-top:0}
+.toolbar {
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-bottom:16px;
+}
+input,select,textarea {
+  width:100%;
+  min-width:0;
+  padding:11px;
+  border:1px solid #d8dee8;
+  border-radius:6px;
+  font:inherit;
+  background:white;
+}
+.toolbar input {flex:1;min-width:180px}
+.toolbar select {width:auto}
+button {
+  border:0;
+  border-radius:6px;
+  padding:10px 13px;
+  font-weight:bold;
+  cursor:pointer;
+}
+.primary {background:var(--orange);color:#211807}
+.secondary {background:#e6ebf2;color:var(--text)}
+.danger {background:#fee2e2;color:#991b1b}
+table {width:100%;border-collapse:collapse;min-width:760px}
+th,td {
+  text-align:left;
+  padding:12px 10px;
+  border-bottom:1px solid #edf0f4;
+  font-size:13px;
+}
+th {background:#f8fafc;color:#64748b}
+.table-wrap {overflow-x:auto}
+.status {
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:bold;
+}
+.activeStatus {background:#dcfce7;color:#166534}
+.maintStatus {background:#fef3c7;color:#92400e}
+.downStatus {background:#fee2e2;color:#991b1b}
+form .field {display:grid;gap:6px;margin:14px 0}
+form label {font-size:13px;font-weight:bold}
+.form-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0 14px;
+}
+dialog {
+  border:0;
+  border-radius:12px;
+  padding:24px;
+  width:min(560px,calc(100% - 24px));
+  max-height:90vh;
+  overflow:auto;
+}
+dialog::backdrop {background:#101d3080}
+.actions {
+  display:flex;
+  justify-content:flex-end;
+  gap:9px;
+  margin-top:18px;
+}
+.empty {text-align:center;color:var(--muted);padding:24px}
+.note {font-size:12px}
+@media(max-width:900px) {
+  .cards {grid-template-columns:repeat(2,minmax(0,1fr))}
+  aside {width:165px}
+  main {padding:18px}
+}
+@media(max-width:600px) {
+  .layout {display:block}
+  aside {width:100%;padding:10px}
+  aside h3 {display:none}
+  nav {display:flex;overflow-x:auto}
+  nav button {white-space:nowrap;width:auto}
+  main {padding:16px}
+  .form-grid {grid-template-columns:1fr}
+  h1 {font-size:23px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">MINE<span>TRACK</span></div>
+  <small>EQUIPMENT MAINTENANCE MANAGEMENT</small>
+</header>
+
+<div class="layout">
+<aside>
+  <h3>MINE OPERATIONS</h3>
+  <nav>
+    <button class="active" data-page="dashboard">▦ Dashboard</button>
+    <button data-page="equipment">⚙ Equipment</button>
+    <button data-page="schedule">▣ Maintenance Schedule</button>
+    <button data-page="history">◷ Service History</button>
+  </nav>
+</aside>
+
+<main>
+<section id="dashboard" class="page active">
+  <h1>Maintenance Dashboard</h1>
+  <p>Monitoring kondisi alat berat dan jadwal perawatan tambang.</p>
+
+  <div class="cards">
+    <div class="card"><small>Total Equipment</small>
+      <div class="num" id="total">0</div><small>Unit terdaftar</small>
+    </div>
+    <div class="card"><small>Maintenance Due</small>
+      <div class="num" id="due">0</div><small>Perlu diservis</small>
+    </div>
+    <div class="card"><small>Operational</small>
+      <div class="num" id="operational">0</div><small>Unit aktif</small>
+    </div>
+    <div class="card"><small>Downtime</small>
+      <div class="num" id="down">0</div><small>Unit tidak beroperasi</small>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Perawatan Terdekat</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Kode</th><th>Nama Alat</th>
+      <th>Jadwal Servis</th><th>Status</th></tr></thead>
+      <tbody id="upcoming"></tbody>
+    </table></div>
+  </div>
+
+  <div class="panel">
+    <h2>Ringkasan Sistem</h2>
+    <p id="summary"></p>
+    <button class="primary" onclick="openEquipment()">+ Tambah Equipment</button>
+  </div>
+</section>
+
+<section id="equipment" class="page">
+  <h1>Equipment Management</h1>
+  <p>Kelola identitas, lokasi, dan status operasional peralatan.</p>
+  <div class="panel">
+    <div class="toolbar">
+      <input id="search" placeholder="Cari kode atau nama alat..."
+        oninput="render()">
+      <select id="statusFilter" onchange="render()">
+        <option value="">Semua status</option>
+        <option>Active</option>
+        <option>Maintenance</option>
+        <option>Down</option>
+      </select>
+      <button class="primary" onclick="openEquipment()">+ Tambah</button>
+      <button class="secondary" onclick="exportEquipment()">Ekspor CSV</button>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Kode</th><th>Nama</th><th>Tipe</th>
+      <th>Lokasi</th><th>Status</th><th>Servis Berikutnya</th>
+      <th>Aksi</th></tr></thead>
+      <tbody id="equipmentRows"></tbody>
+    </table></div>
+  </div>
+</section>
+
+<section id="schedule" class="page">
+  <h1>Maintenance Schedule</h1>
+  <p>Daftar jadwal servis yang dihitung dari tanggal perawatan berikutnya.</p>
+  <div class="panel">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Kode</th><th>Equipment</th><th>Tanggal</th>
+      <th>Status Jadwal</th><th>Aksi</th></tr></thead>
+      <tbody id="scheduleRows"></tbody>
+    </table></div>
+  </div>
+</section>
+
+<section id="history" class="page">
+  <h1>Service History</h1>
+  <p>Riwayat perawatan yang tercatat pada aplikasi.</p>
+  <div class="panel">
+    <button class="secondary" onclick="exportHistory()">Ekspor Riwayat CSV</button>
+    <div class="table-wrap" style="margin-top:15px"><table>
+      <thead><tr><th>Tanggal</th><th>Kode</th><th>Equipment</th>
+      <th>Tindakan</th><th>Biaya</th><th>Catatan</th></tr></thead>
+      <tbody id="historyRows"></tbody>
+    </table></div>
+  </div>
+</section>
+</main>
+</div>
+
+<dialog id="equipmentDialog">
+<form id="equipmentForm">
+  <h2 id="equipmentTitle">Tambah Equipment</h2>
+  <input type="hidden" id="equipmentId">
+  <div class="form-grid">
+    <div class="field"><label>Kode Equipment</label>
+      <input id="code" required placeholder="EX-001"></div>
+    <div class="field"><label>Nama Alat</label>
+      <input id="name" required placeholder="Excavator"></div>
+    <div class="field"><label>Tipe Alat</label>
+      <select id="type">
+        <option>Excavator</option><option>Dump Truck</option>
+        <option>Bulldozer</option><option>Wheel Loader</option>
+        <option>Motor Grader</option><option>Drilling Machine</option>
+        <option>Lainnya</option>
+      </select>
+    </div>
+    <div class="field"><label>Lokasi</label>
+      <input id="location" required placeholder="Area Tambang A"></div>
+    <div class="field"><label>Status</label>
+      <select id="status">
+        <option>Active</option><option>Maintenance</option>
+        <option>Down</option>
+      </select>
+    </div>
+    <div class="field"><label>Servis Berikutnya</label>
+      <input id="nextService" type="date" required></div>
+    <div class="field"><label>Jam Operasi (HM)</label>
+      <input id="hours" type="number" min="0" value="0" required></div>
+  </div>
+  <div class="actions">
+    <button type="button" class="secondary"
+      onclick="equipmentDialog.close()">Batal</button>
+    <button class="primary">Simpan</button>
+  </div>
+</form>
+</dialog>
+
+<dialog id="serviceDialog">
+<form id="serviceForm">
+  <h2>Catat Perawatan</h2>
+  <input type="hidden" id="serviceId">
+  <p id="serviceEquipment"></p>
+  <div class="field"><label>Tanggal Servis</label>
+    <input type="date" id="serviceDate" required></div>
+  <div class="field"><label>Tindakan</label>
+    <select id="action">
+      <option>Preventive Maintenance</option>
+      <option>Inspection</option><option>Repair</option>
+      <option>Oil Change</option><option>Component Replacement</option>
+    </select>
+  </div>
+  <div class="field"><label>Biaya (Rupiah)</label>
+    <input id="cost" type="number" min="0" value="0" required></div>
+  <div class="field"><label>Catatan Servis</label>
+    <textarea id="notes" rows="3" placeholder="Tindakan dan hasil inspeksi"></textarea></div>
+  <div class="field"><label>Servis Berikutnya</label>
+    <input id="newServiceDate" type="date" required></div>
+  <div class="actions">
+    <button type="button" class="secondary"
+      onclick="serviceDialog.close()">Batal</button>
+    <button class="primary">Simpan Servis</button>
+  </div>
+</form>
+</dialog>
+
+<script>
+const today = new Date();
+const dateOffset = n => {
+  const d = new Date();
+  d.setDate(d.getDate()+n);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")
+    +"-"+String(d.getDate()).padStart(2,"0");
+};
+
+const sample = [
+  {id:1,code:"EX-001",name:"Excavator Komatsu",
+   type:"Excavator",location:"Pit A",status:"Active",
+   nextService:dateOffset(3),hours:1250},
+  {id:2,code:"DT-002",name:"Dump Truck",
+   type:"Dump Truck",location:"Pit B",status:"Maintenance",
+   nextService:dateOffset(0),hours:980},
+  {id:3,code:"BD-003",name:"Bulldozer",
+   type:"Bulldozer",location:"Pit A",status:"Active",
+   nextService:dateOffset(12),hours:740},
+  {id:4,code:"WL-004",name:"Wheel Loader",
+   type:"Wheel Loader",location:"Workshop",status:"Down",
+   nextService:dateOffset(-2),hours:2100}
+];
+
+let equipment = JSON.parse(
+  localStorage.getItem("mtEquipment") || "null"
+) || sample;
+let services = JSON.parse(
+  localStorage.getItem("mtServices") || "[]"
+);
+let nextId = Math.max(0,...equipment.map(x=>x.id))+1;
+
+function save(){
+  localStorage.setItem("mtEquipment",JSON.stringify(equipment));
+  localStorage.setItem("mtServices",JSON.stringify(services));
+}
+function esc(v){
+  return String(v??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#39;"
+  }[c]));
+}
+function dueStatus(x){
+  if(x.nextService<dateOffset(0)) return "Overdue";
+  if(x.nextService<=dateOffset(7)) return "Due Soon";
+  return "Scheduled";
+}
+function badgeStatus(s){
+  const cls=s==="Active"?"activeStatus":
+    s==="Maintenance"||s==="Due Soon"||s==="Overdue"
+      ?"maintStatus":"downStatus";
+  return `<span class="status ${cls}">${esc(s)}</span>`;
+}
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p=>
+    p.classList.toggle("active",p.id===id));
+  document.querySelectorAll("nav button").forEach(b=>
+    b.classList.toggle("active",b.dataset.page===id));
+  render();
+}
+document.querySelectorAll("nav button").forEach(b=>
+  b.addEventListener("click",()=>showPage(b.dataset.page)));
+
+function render(){
+  document.getElementById("total").textContent=equipment.length;
+  document.getElementById("due").textContent=equipment.filter(x=>
+    x.status!=="Down" && x.nextService<=dateOffset(7)).length;
+  document.getElementById("operational").textContent=
+    equipment.filter(x=>x.status==="Active").length;
+  document.getElementById("down").textContent=
+    equipment.filter(x=>x.status==="Down").length;
+  document.getElementById("summary").textContent=
+    `${equipment.length} unit terdaftar, `+
+    `${equipment.filter(x=>x.status==="Maintenance").length} unit dalam perawatan, `+
+    `${services.length} catatan servis.`;
+
+  const query=(document.getElementById("search")?.value||"").toLowerCase();
+  const filter=document.getElementById("statusFilter")?.value||"";
+  const filtered=equipment.filter(x=>
+    (x.code+" "+x.name+" "+x.type+" "+x.location)
+      .toLowerCase().includes(query) &&
+    (!filter||x.status===filter));
+
+  document.getElementById("equipmentRows").innerHTML=filtered.length
+    ?filtered.map(x=>`<tr>
+      <td>${esc(x.code)}</td><td>${esc(x.name)}</td>
+      <td>${esc(x.type)}</td><td>${esc(x.location)}</td>
+      <td>${badgeStatus(x.status)}</td><td>${esc(x.nextService)}</td>
+      <td>
+        <button class="secondary" onclick="editEquipment(${x.id})">Edit</button>
+        <button class="primary" onclick="openService(${x.id})">Servis</button>
+        <button class="danger" onclick="removeEquipment(${x.id})">Hapus</button>
+      </td></tr>`).join("")
+    :'<tr><td colspan="7" class="empty">Belum ada data.</td></tr>';
+
+  const sorted=[...equipment].sort((a,b)=>
+    a.nextService.localeCompare(b.nextService));
+  document.getElementById("upcoming").innerHTML=sorted.length
+    ?sorted.slice(0,5).map(x=>`<tr>
+      <td>${esc(x.code)}</td><td>${esc(x.name)}</td>
+      <td>${esc(x.nextService)}</td><td>${badgeStatus(dueStatus(x))}</td>
+      </tr>`).join("")
+    :'<tr><td colspan="4" class="empty">Tidak ada equipment.</td></tr>';
+
+  document.getElementById("scheduleRows").innerHTML=sorted.length
+    ?sorted.map(x=>`<tr><td>${esc(x.code)}</td>
+      <td>${esc(x.name)}</td><td>${esc(x.nextService)}</td>
+      <td>${badgeStatus(dueStatus(x))}</td>
+      <td><button class="primary" onclick="openService(${x.id})">Catat Servis</button></td>
+      </tr>`).join("")
+    :'<tr><td colspan="5" class="empty">Tidak ada jadwal.</td></tr>';
+
+  document.getElementById("historyRows").innerHTML=services.length
+    ?[...services].reverse().map(s=>`<tr>
+      <td>${esc(s.date)}</td><td>${esc(s.code)}</td>
+      <td>${esc(s.name)}</td><td>${esc(s.action)}</td>
+      <td>Rp ${Number(s.cost).toLocaleString("id-ID")}</td>
+      <td>${esc(s.notes)}</td></tr>`).join("")
+    :'<tr><td colspan="6" class="empty">Belum ada riwayat servis.</td></tr>';
+}
+
+function openEquipment(id=null){
+  equipmentForm.reset();
+  equipmentId.value=id??"";
+  document.getElementById("equipmentTitle").textContent=
+    id?"Edit Equipment":"Tambah Equipment";
+  if(id!==null){
+    const x=equipment.find(i=>i.id===id);
+    if(!x)return;
+    code.value=x.code;name.value=x.name;type.value=x.type;
+    location.value=x.location;status.value=x.status;
+    nextService.value=x.nextService;hours.value=x.hours;
+  }else{
+    nextService.value=dateOffset(30);
+    hours.value=0;
+  }
+  equipmentDialog.showModal();
+}
+function editEquipment(id){openEquipment(id)}
+
+equipmentForm.addEventListener("submit",e=>{
+  e.preventDefault();
+  const rawId=equipmentId.value;
+  const id=Number(rawId);
+  const data={
+    code:code.value.trim(),name:name.value.trim(),
+    type:type.value,location:location.value.trim(),
+    status:status.value,nextService:nextService.value,
+    hours:Number(hours.value)
+  };
+  if(equipment.some(x=>x.code.toLowerCase()===data.code.toLowerCase()
+    &&x.id!==id)){
+    alert("Kode equipment sudah digunakan.");return;
+  }
+  if(!data.nextService||data.hours<0)return;
+  if(rawId){
+    equipment=equipment.map(x=>x.id===id?{...x,...data}:x);
+  }else{
+    equipment.push({id:nextId++,...data});
+  }
+  save();render();equipmentDialog.close();
+});
+
+function removeEquipment(id){
+  const x=equipment.find(i=>i.id===id);
+  if(!x||!confirm("Hapus "+x.name+"? Riwayat servis tetap disimpan."))return;
+  equipment=equipment.filter(i=>i.id!==id);
+  save();render();
+}
+
+function openService(id){
+  const x=equipment.find(i=>i.id===id);
+  if(!x)return;
+  serviceForm.reset();
+  serviceId.value=id;
+  serviceEquipment.textContent=x.code+" — "+x.name;
+  serviceDate.value=dateOffset(0);
+  newServiceDate.value=dateOffset(30);
+  cost.value=0;
+  serviceDialog.showModal();
+}
+serviceForm.addEventListener("submit",e=>{
+  e.preventDefault();
+  const x=equipment.find(i=>i.id===Number(serviceId.value));
+  if(!x)return;
+  const next=newServiceDate.value;
+  if(next<serviceDate.value){
+    alert("Jadwal servis berikutnya tidak boleh sebelum tanggal servis.");
+    return;
+  }
+  services.push({
+    date:serviceDate.value,code:x.code,name:x.name,
+    action:action.value,cost:Number(cost.value),
+    notes:notes.value.trim()
+  });
+  x.nextService=next;
+  if(x.status==="Maintenance")x.status="Active";
+  save();render();serviceDialog.close();
+});
+
+function downloadCSV(filename,rows){
+  const csv=rows.map(row=>row.map(v=>{
+    let s=String(v??"");
+    if(/^[=+\-@\t\r]/.test(s))s="'"+s;
+    return '"'+s.replace(/"/g,'""')+'"';
+  }).join(",")).join("\r\n");
+  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download=filename;a.click();
+  URL.revokeObjectURL(url);
+}
+function exportEquipment(){
+  downloadCSV("equipment.csv",[
+    ["Kode","Nama","Tipe","Lokasi","Status","Servis Berikutnya","HM"],
+    ...equipment.map(x=>[x.code,x.name,x.type,x.location,
+      x.status,x.nextService,x.hours])
+  ]);
+}
+function exportHistory(){
+  downloadCSV("service-history.csv",[
+    ["Tanggal","Kode","Nama","Tindakan","Biaya","Catatan"],
+    ...services.map(x=>[x.date,x.code,x.name,x.action,x.cost,x.notes])
+  ]);
+}
+render();
+</script>
+</body>
+</html>
